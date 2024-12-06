@@ -1,0 +1,46 @@
+<div class="card">
+  <div class="card-header">
+    <h1 class="mt-3 mb-3">IP Checker</h1>
+  </div>
+  <div class="card-body">
+    <form id="ip-form" class="mt-3">
+      <div class="mb-3">
+        <label for="ip_addresses" class="form-label">Enter one or multiple IP addresses (separated by spaces):</label>
+        <input type="text" class="form-control" id="ip_addresses" name="ip_addresses" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Check</button>
+    </form>
+    <h2 class="mt-5">Results:</h2>
+    <div id="results" class="mt-3"></div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $('#ip-form').on('submit', function(event) {
+      event.preventDefault(); // Prevent the form from submitting the traditional way
+      var formData = $(this).serialize(); // Serialize the form data
+
+      $.ajax({
+        url: '/check_ips',
+        method: 'POST',
+        data: formData,
+        success: function(response) {
+          $('#results').empty(); // Clear any previous results
+
+          if ($.isEmptyObject(response)) {
+            $('#results').append('<div class="alert alert-warning">No valid IP addresses to check.</div>');
+          } else {
+            $.each(response, function(ip, status) {
+              $('#results').append('<div class="alert alert-info">' + ip + ': ' + status + '</div>');
+            });
+          }
+        },
+        error: function() {
+          $('#results').html('<div class="alert alert-danger">An error occurred while checking the IP addresses. Please try again later.</div>');
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
